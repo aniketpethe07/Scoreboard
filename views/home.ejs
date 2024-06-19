@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Home</h1>
+
+    <a href="/register" style="text-decoration: none;">
+        <button>
+            Register
+        </button>
+    </a>
+    <a href="/login" style="text-decoration: none;">
+        <button>
+            Login
+        </button>
+    </a>
+    <hr>
+    <label for="">Sort by</label>
+    <select id="sort" onchange="sendData()"> 
+        <option value="normal">Normal</option>
+        <option value="chances">Chances</option>
+        <option value="score">Score</option>
+    </select>
+    <div id="table-container" style="margin: 20px;"></div>
+<script>
+
+    async function sendData() {
+        try {
+            const sortOption = document.getElementById('sort').value;
+            const response = await fetch('/getData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sortOption })
+            });
+            
+            const data = await response.json();
+            // console.log(data);
+            let tableHtml = `
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="border: 1px solid black; padding: 8px; text-align: left;">Rank</th>
+                            <th style="border: 1px solid black; padding: 8px; text-align: left;">UserName</th>
+                            <th style="border: 1px solid black; padding: 8px; text-align: left;">Score</th>
+                            <th style="border: 1px solid black; padding: 8px; text-align: left;">Chances used</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let rank = 1; // Initialize rank counter
+            
+            data.forEach(item => {
+                tableHtml += `
+                    <tr>
+                        <td style="border: 1px solid black; padding: 8px; text-align: left;">${rank++}</td> <!-- Increment rank for each row -->
+                        <td style="border: 1px solid black; padding: 8px; text-align: left;">${item.username}</td>
+                        <td style="border: 1px solid black; padding: 8px; text-align: left;">${item.score}</td>
+                        <td style="border: 1px solid black; padding: 8px; text-align: left;">${50-item.chances}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+        
+            // Insert table into HTML document
+            document.getElementById('table-container').innerHTML = tableHtml;
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    window.onload = sendData;
+</script>
+</body>
+</html>
